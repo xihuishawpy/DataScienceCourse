@@ -1,6 +1,7 @@
 '''
 This script has a set of reference functions for performing analysis of the churn dataset
 '''
+
 import sys
 import pandas as pd
 import numpy as np
@@ -9,7 +10,7 @@ import sklearn.metrics as skm
 import os
 
 cwd = os.getcwd()
-sys.path.append('/'.join(cwd.split('/')[0:-1]) + '/utils')
+sys.path.append('/'.join(cwd.split('/')[:-1]) + '/utils')
 
 from ClassifierBakeoff import *
 
@@ -105,11 +106,10 @@ def plotMI(dat, lab, width = 0.35, signed = 0):
 	X = dat.drop(lab, 1)
 	Y = dat[[lab]].values
 	cols = X.columns.values
-	mis = []
-
-	#Start by getting MI
-	for c in cols:
-		mis.append(skm.normalized_mutual_info_score(Y.ravel(), X[[c]].values.ravel()))
+	mis = [
+	    skm.normalized_mutual_info_score(Y.ravel(), X[[c]].values.ravel())
+	    for c in cols
+	]
 
 	#Get signs by correlation
 	corrs = dat.corr()[lab]
@@ -118,7 +118,7 @@ def plotMI(dat, lab, width = 0.35, signed = 0):
 	df = pd.concat([df, pd.DataFrame(list(corrs), columns = ['corr'])], axis=1, join_axes=[df.index])
 
 
-	
+
 	if signed == 0:
 		makeBar(df, 'MI', 'Lab', width)
 
@@ -177,11 +177,8 @@ def rankGS_Params(gs_obj_list, getmin = True):
 	'''
 	Takes in the .grid_scores_ attributes of a GridSearchCV object
 	'''
-	tup_list = []
-	
-	for k in gs_obj_list:
-		tup_list.append(makeGS_Tup(k, getmin))
-	
+	tup_list = [makeGS_Tup(k, getmin) for k in gs_obj_list]
+
 	tup_list.sort()
 
 	if not getmin:
@@ -233,16 +230,16 @@ def plotGridSearchMulti(tup_list, getmin = True):
 
 			hts, desc, errs, std1 = processGsObjList(gs_dict[k][1], getmin = True)
 			for i, d in enumerate(desc):
-				desc[i] = '{} {} {}'.format(clf, lab, d)
+				desc[i] = f'{clf} {lab} {d}'
 
 			if hts[0] < best_min:
 				best_std1 = std1
-	
+
 			m_ht = m_ht + hts
 			m_desc = m_desc + desc
 			m_errs = m_errs + errs
 
-	gridBarH(m_ht, m_desc, m_errs, best_std1, int(len(m_ht)), 12)
+	gridBarH(m_ht, m_desc, m_errs, best_std1, len(m_ht), 12)
 
 
 
@@ -253,7 +250,7 @@ def gridBarH(hts, desc, errs, std1, h = 6, w = 12):
 	plt.subplots_adjust(bottom = 0.25)
 
 	width = 0.5
-	
+
 	pos = np.arange(len(hts))
 
 	rec = ax.barh(pos, np.array(hts), width, yerr = np.array(errs), color='r')
@@ -261,9 +258,7 @@ def gridBarH(hts, desc, errs, std1, h = 6, w = 12):
 	ax.set_yticks(pos + width/2)
 	ax.set_yticklabels(desc, size = 14)
 
-	tmp = list(hts)
-	tmp.sort()
-
+	tmp = sorted(hts)
 	x_min = np.array(hts).min() - 2*np.array(hts).std()
 	x_max = tmp[-2] + 2*np.array(hts).std()
 	plt.xlim(x_min, x_max)

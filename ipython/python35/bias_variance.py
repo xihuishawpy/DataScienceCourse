@@ -27,9 +27,7 @@ def fitLinReg(d, mn, mx, inter):
 
     regr = linear_model.LinearRegression(fit_intercept = inter)
     regr.fit(d.drop('y', 1), d['y'])
-    yhat = regr.predict(pd.DataFrame(np.arange(mn, mx, 1)))
-
-    return yhat
+    return regr.predict(pd.DataFrame(np.arange(mn, mx, 1)))
 
 def makePolyFeat(d, deg):
     '''
@@ -40,7 +38,7 @@ def makePolyFeat(d, deg):
     '''
     #Generate Polynomial terms
     for i in range(2, deg+1):
-        d['x'+str(i)] = d['x']**i
+        d[f'x{str(i)}'] = d['x']**i
     return d
 
 def fitFullReg(d, mn, mx, betas, inter):
@@ -51,9 +49,7 @@ def fitFullReg(d, mn, mx, betas, inter):
     regr = linear_model.LinearRegression(fit_intercept = inter)
     regr.fit(makePolyFeat(d.drop('y', 1), len(betas)), d['y'])
     dt = pd.DataFrame(np.arange(mn, mx, 1), columns = ['x'])
-    yhat = regr.predict(makePolyFeat(dt, len(betas)))
-
-    return yhat
+    return regr.predict(makePolyFeat(dt, len(betas)))
 
 
 
@@ -79,7 +75,7 @@ def plotLinearBiasStage(sigma, betas, ns, fs):
     for n in ns:
         dn = simPolynomial(sigma, betas, n)
         yhat = fitLinReg(dn, mn, mx, True)
-        plt.plot(x, yhat, label = 'n={}'.format(n))
+        plt.plot(x, yhat, label=f'n={n}')
 
 
     plt.legend(loc = 4, ncol = 3)
@@ -101,8 +97,7 @@ def plotVariance(sigma, betas, ns, fs):
         #First model each world
         yhat_lin = []
         yhat_non = []
-        for i in range(nworlds):
-
+        for _ in range(nworlds):
             dn = simPolynomial(sigma, betas, n)
 
             yhat_lin.append(fitLinReg(dn, mn, mx, True))
@@ -121,14 +116,14 @@ def plotVariance(sigma, betas, ns, fs):
         #Need to continue from here
 
         for i in range(nworlds):
-    
+            
             ax1 = fig.add_subplot(2, 3, pos + 1)
-            plt.title('n={}'.format(n))
+            plt.title(f'n={n}')
             plt.plot(x, yhat_lin[i], '.', color = '0.75')
-   
+
             if i == nworlds - 1:
                 plt.plot(x, lin_mu, 'r-')
-                plt.title('E[std|X] = {}'.format(round(lin_sig.mean(),1)))
+                plt.title(f'E[std|X] = {round(lin_sig.mean(), 1)}')
 
             ax1.axes.get_xaxis().set_visible(False)
             ax1.set_ylim((-40, 80))
@@ -138,7 +133,7 @@ def plotVariance(sigma, betas, ns, fs):
 
             if i == nworlds - 1:
                 plt.plot(x, non_mu, 'r-')
-                plt.title('E[std|X] = {}'.format(round(non_sig.mean(),1)))
+                plt.title(f'E[std|X] = {round(non_sig.mean(), 1)}')
 
             ax2.set_ylim((-40, 80)) 
 
@@ -163,17 +158,17 @@ def getVarianceTrend(sigma, betas):
 
     res_dict = {'n':[], 'lin':[], 'quad':[], 'non':[]}
 
-    for pos, n in enumerate(ns):
+    for n in ns:
+        yhat_lin = []
+        yhat_quad = []
+        yhat_non = []
 
-        yhat_lin = []; yhat_quad = []; yhat_non = []
-
-        for i in range(nworlds):
-
+        for _ in range(nworlds):
             dn = simPolynomial(sigma, betas, n)
 
             #yhat_lin.append(fitLinReg(dn, mn, mx, True)[0])
-            yhat_lin.append(fitFullReg(dn, mn, mx, betas[0:1], True)[0])
-            yhat_quad.append(fitFullReg(dn, mn, mx, betas[0:2], True)[0])
+            yhat_lin.append(fitFullReg(dn, mn, mx, betas[:1], True)[0])
+            yhat_quad.append(fitFullReg(dn, mn, mx, betas[:2], True)[0])
             yhat_non.append(fitFullReg(dn, mn, mx, betas, True)[0])
 
         res_dict['lin'].append(np.array(yhat_lin).std())

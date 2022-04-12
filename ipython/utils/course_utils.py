@@ -108,7 +108,7 @@ def gen_logistic_dataframe(n,alpha,betas):
     '''
     X = np.random.random([n,len(betas)])
     Y = map(getY,X.dot(betas)+alpha)
-    d = pd.DataFrame(X,columns=['f'+str(j) for j in range(X.shape[1])])
+    d = pd.DataFrame(X, columns=[f'f{str(j)}' for j in range(X.shape[1])])
     d['Y'] = Y
     return d
 
@@ -185,7 +185,7 @@ def makePolyFeat(d, deg):
     '''
     #Generate Polynomial terms
     for i in range(2, deg+1):
-        d['x'+str(i)] = d['x']**i
+        d[f'x{str(i)}'] = d['x']**i
     return d
 
 

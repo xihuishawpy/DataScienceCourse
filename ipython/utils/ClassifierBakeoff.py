@@ -42,9 +42,9 @@ def dToString(d, dm1, dm2):
     arg_str = ''
     for k in sorted(d.keys()):
         if len(arg_str) == 0:
-            arg_str = '{}{}{}'.format(k, dm1, d[k])
+            arg_str = f'{k}{dm1}{d[k]}'
         else:
-            arg_str = arg_str + '{}{}{}{}'.format(dm2, k, dm1, d[k])
+            arg_str = arg_str + f'{dm2}{k}{dm1}{d[k]}'
     return arg_str
 
 def getArgCombos(arg_lists):
@@ -56,10 +56,7 @@ def getArgCombos(arg_lists):
     tot = 1
     for k in keys:
         tot = tot * len(arg_lists[k])
-    iter = []
-    #Fill it with empty dicts
-    for i in range(tot):
-        iter.append({})
+    iter = [{} for _ in range(tot)]
     #Now fill each dictionary    
     kpass = 1
     for k in keys:

@@ -39,9 +39,9 @@ def plotCalib(truth, pred, bins = 100, f = 0, l = '', w = 8, h = 8, fig_i = 1, f
 
     ax = plt.subplot(fig_i, fig_j, fig_k)
     #plt.plot(x, y, 'b.', markersize = 9)
-    plt.errorbar(x, y, yerr = 1.96 * stderr, fmt = 'o') 
+    plt.errorbar(x, y, yerr = 1.96 * stderr, fmt = 'o')
     plt.plot([0.0, 1.0], [0.0, 1.0], 'k-')
-    plt.title(l + ':' + ' MAE = {}, LL = {}'.format(mae, ll))
+    plt.title(l + ':' + f' MAE = {mae}, LL = {ll}')
 
     plt.xlim([0.0, 1.0])
     plt.ylim([0.0, 1.0])
